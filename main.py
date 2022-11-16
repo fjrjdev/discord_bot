@@ -1,9 +1,11 @@
-import discord
+import json
 import os
+import random
+
+import discord
 import dotenv
 import requests
-import json
-import random
+
 
 dotenv.load_dotenv()
 
@@ -18,6 +20,13 @@ def get_quote():
     json_data = json.loads(response.text)
     quote = json_data[0]["q"] + " -" + json_data[0]["a"]
     return quote
+
+
+def get_find(param):
+    response = requests.get(f"https://simple-spotify-api.herokuapp.com/?search={param}")
+    json_data = json.loads(response.text)
+    print(json_data["data"][0]["music_url"])
+    return json_data["data"][0]["music_url"]
 
 
 meme_words = ["Drake", "Is this a...?", "This is fine"]
@@ -40,6 +49,11 @@ async def on_message(message):
     if msg.startswith("$inspire"):
         quote = get_quote()
         await message.channel.send(quote)
+    if msg.startswith("$find"):
+        search = msg[6::]
+        response = get_find(search)
+        await message.channel.send(response)
+
     if any(word in msg for word in meme_words):
         await message.channel.send(random.choice(res_words))
 
